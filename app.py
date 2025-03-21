@@ -46,7 +46,7 @@ def add_expense():
     result = expenses.insert_one(expense)
     return jsonify({"_id": str(result.inserted_id), **expense}), 201
 
-@app.route('/expenses/<string:expense_id>', methods=['PUT'])
+@app.route('/expenses/<expense_id>', methods=['PUT'])
 def update_expense(expense_id):
     try:
         # Convert to ObjectId if possible
