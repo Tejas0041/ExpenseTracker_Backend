@@ -12,7 +12,7 @@ app = Flask(__name__)
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
 
 if not app.config["MONGO_URI"]:
-    raise ValueError("Missing MONGO_URI in environment variables!")
+    raise ValueError("Missing MONGO_URI in environment variables")
 
 mongo = PyMongo(app)
 
@@ -23,7 +23,7 @@ categories = mongo.db.categories
 def get_expenses():
     expense_list = []
     for expense in expenses.find():
-        expense['_id'] = str(expense['_id']) 
+        expense['_id'] = str(expense['_id'])
         expense_list.append(expense)
     return jsonify(expense_list)
 
@@ -44,7 +44,7 @@ def add_expense():
         "timestamp": datetime.now()
     }
     result = expenses.insert_one(expense)
-    return jsonify({"_id": str(result.inserted_id)}), 201
+    return jsonify({"_id": str(result.inserted_id), **expense}), 201
 
 @app.route('/expenses/<id>', methods=['PUT'])
 def update_expense(id):
@@ -79,7 +79,7 @@ def delete_expense(id):
 def get_categories():
     category_list = []
     for category in categories.find():
-        category['_id'] = str(category['_id'])  
+        category['_id'] = str(category['_id'])
         category_list.append(category)
     return jsonify(category_list)
 
@@ -96,7 +96,7 @@ def add_category():
         "name": data['name']
     }
     result = categories.insert_one(category)
-    return jsonify({"_id": str(result.inserted_id)}), 201
+    return jsonify({"_id": str(result.inserted_id), "name": data['name']}), 201
 
 @app.route('/categories/<name>', methods=['DELETE'])
 def remove_category(name):
