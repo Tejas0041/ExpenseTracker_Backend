@@ -47,26 +47,23 @@ def add_expense():
     return jsonify({"_id": str(result.inserted_id), **expense}), 201
 
 @app.route('/expenses/<id>', methods=['PUT'])
-def update_expense(id):
-    data = request.get_json()
-    if not data:
-        return jsonify({"error": "No data provided"}), 400
+def update_expense(expense_id):
+    try:
+        if not ObjectId.is_valid(expense_id): 
+            return jsonify({"error": "Invalid expense ID"}), 400
 
-    if 'category' in data:
-        category = categories.find_one({"name": data['category']})
-        if not category:
-            return jsonify({"error": "Category does not exist"}), 400
+        data = request.json
+        result = expenses.update_one(
+            {"_id": ObjectId(expense_id)},
+            {"$set": data}
+        )
 
-    expense = expenses.find_one_and_update(
-        {"_id": ObjectId(id)},
-        {"$set": data},
-        return_document=True
-    )
-    if not expense:
-        return jsonify({"error": "Expense not found"}), 404
+        if result.modified_count == 0:
+            return jsonify({"error": "No update performed"}), 400
 
-    expense['_id'] = str(expense['_id'])
-    return jsonify(expense)
+        return jsonify({"message": "Expense updated"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/expenses/<id>', methods=['DELETE'])
 def delete_expense(id):
