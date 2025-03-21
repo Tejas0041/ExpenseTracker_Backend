@@ -46,16 +46,19 @@ def add_expense():
     result = expenses.insert_one(expense)
     return jsonify({"_id": str(result.inserted_id), **expense}), 201
 
-@app.route('/expenses/<id>', methods=['PUT'])
+@app.route('/expenses/<string:expense_id>', methods=['PUT'])
 def update_expense(expense_id):
-    obj_id = None
     try:
+        # Convert to ObjectId if possible
         try:
-            obj_id = ObjectId(id)  
+            obj_id = ObjectId(expense_id)  
         except:
-            obj_id = id 
+            obj_id = expense_id  # Keep it as a string if conversion fails
 
         data = request.json
+        if not data:
+            return jsonify({"error": "No data provided"}), 400  # Handle missing JSON data
+
         result = expenses.update_one(
             {"_id": obj_id},
             {"$set": data}
@@ -65,6 +68,7 @@ def update_expense(expense_id):
             return jsonify({"error": "No update performed"}), 400
 
         return jsonify({"message": "Expense updated"}), 200
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
