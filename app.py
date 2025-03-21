@@ -30,15 +30,21 @@ def get_expenses():
 @app.route('/expenses', methods=['POST'])
 def add_expense():
     data = request.get_json()
+    print("Incoming request data:", data) 
     if not data or not 'amount' in data or not 'category' in data:
         return jsonify({"error": "Missing required fields"}), 400
+    
+    try:
+        amount = float(data['amount'])
+    except ValueError:
+        return jsonify({"error": "Amount must be a number"}), 400
 
     category = categories.find_one({"name": data['category']})
     if not category:
         return jsonify({"error": "Category does not exist"}), 400
 
     expense = {
-        "amount": data['amount'],
+        "amount": amount,
         "category": data['category'],
         "note": data.get('note', ''),
         "timestamp": datetime.now()
