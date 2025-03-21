@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_pymongo import PyMongo
-from bson.objectid import ObjectId
+from bson import ObjectId, errors
 from datetime import datetime
 from dotenv import load_dotenv
 import os
@@ -54,7 +54,7 @@ def update_expense(expense_id):
 
         data = request.json
         result = expenses.update_one(
-            {"_id": ObjectId(expense_id)},
+            {"_id": expense_id},
             {"$set": data}
         )
 
@@ -67,7 +67,7 @@ def update_expense(expense_id):
 
 @app.route('/expenses/<id>', methods=['DELETE'])
 def delete_expense(id):
-    result = expenses.delete_one({"_id": ObjectId(id)})
+    result = expenses.delete_one({"_id": id})
     if result.deleted_count == 0:
         return jsonify({"error": "Expense not found"}), 404
     return jsonify({"message": "Expense deleted"}), 200
