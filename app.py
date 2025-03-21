@@ -48,13 +48,16 @@ def add_expense():
 
 @app.route('/expenses/<id>', methods=['PUT'])
 def update_expense(expense_id):
+    obj_id = None
     try:
-        if not ObjectId.is_valid(expense_id): 
-            return jsonify({"error": "Invalid expense ID"}), 400
+        try:
+            obj_id = ObjectId(id)  
+        except:
+            obj_id = id 
 
         data = request.json
         result = expenses.update_one(
-            {"_id": expense_id},
+            {"_id": obj_id},
             {"$set": data}
         )
 
@@ -67,7 +70,12 @@ def update_expense(expense_id):
 
 @app.route('/expenses/<id>', methods=['DELETE'])
 def delete_expense(id):
-    result = expenses.delete_one({"_id": id})
+    obj_id = None
+    try:
+        obj_id = ObjectId(id)  
+    except:
+        obj_id = id
+    result = expenses.delete_one({"_id": obj_id})
     if result.deleted_count == 0:
         return jsonify({"error": "Expense not found"}), 404
     return jsonify({"message": "Expense deleted"}), 200
