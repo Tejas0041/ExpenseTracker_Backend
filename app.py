@@ -2,11 +2,18 @@ from flask import Flask, request, jsonify
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 from datetime import datetime
+from dotenv import load_dotenv
 import os
+
+load_dotenv()
 
 app = Flask(__name__)
 
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
+
+if not app.config["MONGO_URI"]:
+    raise ValueError("Missing MONGO_URI in environment variables!")
+
 mongo = PyMongo(app)
 
 expenses = mongo.db.expenses
